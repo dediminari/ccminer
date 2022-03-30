@@ -2232,9 +2232,6 @@ void print_hash_tests(void)
 	lyra2v2_hash(&hash[0], &buf[0]);
 	printpfx("lyra2v2", hash);
 
-	lyra2Z_hash(&hash[0], &buf[0]);
-	printpfx("lyra2z", hash);
-
 	myriadhash(&hash[0], &buf[0]);
 	printpfx("myriad", hash);
 
@@ -2315,15 +2312,6 @@ void print_hash_tests(void)
 
 	x11hash(&hash[0], &buf[0]);
 	printpfx("X11", hash);
-
-	x13hash(&hash[0], &buf[0]);
-	printpfx("X13", hash);
-
-	x14hash(&hash[0], &buf[0]);
-	printpfx("X14", hash);
-
-	x15hash(&hash[0], &buf[0]);
-	printpfx("X15", hash);
 
 	x16r_hash(&hash[0], &buf[0]);
 	printpfx("X16r", hash);
