@@ -72,21 +72,3 @@ extern "C" void skunk_hash(void *output, const void *input)
 static bool init[MAX_GPUS] = { 0 };
 static bool use_compat_kernels[MAX_GPUS] = { 0 };
 
-// cleanup
-extern "C" void free_skunk(int thr_id)
-{
-	if (!init[thr_id])
-		return;
-
-	cudaThreadSynchronize();
-
-	if (use_compat_kernels[thr_id])
-		x13_fugue512_cpu_free(thr_id);
-
-	cudaFree(d_hash[thr_id]);
-	cudaFree(d_resNonce[thr_id]);
-
-	init[thr_id] = false;
-
-	cudaDeviceSynchronize();
-}
