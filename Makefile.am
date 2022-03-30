@@ -80,7 +80,6 @@ ccminer_SOURCES	= elist.h miner.h compat.h \
 
 # scrypt
 ccminer_SOURCES += scrypt.cpp scrypt-jane.cpp \
-    scrypt/blake.cu scrypt/keccak.cu scrypt/sha256.cu \
     scrypt/nv_kernel.cu scrypt/nv_kernel2.cu scrypt/titan_kernel.cu
 
 if HAVE_NVML
