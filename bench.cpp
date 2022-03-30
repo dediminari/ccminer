@@ -75,7 +75,6 @@ void algo_free_all(int thr_id)
 	free_luffa(thr_id);
 	free_lyra2(thr_id);
 	free_lyra2v2(thr_id);
-	free_lyra2Z(thr_id);
 	free_myriad(thr_id);
 	free_neoscrypt(thr_id);
 	free_nist5(thr_id);
@@ -99,9 +98,6 @@ void algo_free_all(int thr_id)
 	free_wildkeccak(thr_id);
 	free_x11evo(thr_id);
 	free_x11(thr_id);
-	free_x13(thr_id);
-	free_x14(thr_id);
-	free_x15(thr_id);
 	free_x16r(thr_id);
 	free_x16s(thr_id);
 	free_x17(thr_id);
