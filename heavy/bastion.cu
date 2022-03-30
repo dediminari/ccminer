@@ -19,9 +19,6 @@ extern void quark_skein512_cpu_hash_64(int thr_id, uint32_t threads, uint32_t st
 extern void x11_luffa512_cpu_init(int thr_id, uint32_t threads);
 extern void x11_luffa512_cpu_hash_64(int thr_id, uint32_t threads, uint32_t startNounce, uint32_t *d_nonceVector, uint32_t *d_hash, int order);
 
-extern void x13_hamsi512_cpu_init(int thr_id, uint32_t threads);
-extern void x13_hamsi512_cpu_hash_64(int thr_id, uint32_t threads, uint32_t startNounce, uint32_t *d_nonceVector, uint32_t *d_hash, int order);
-
 extern void bastion_init(const int thr_id, const uint32_t threads);
 extern void bastion_free(const int thr_id);
 
@@ -71,7 +68,6 @@ int scanhash_bastion(int thr_id, struct work *work, uint32_t max_nonce, unsigned
 		x11_luffa512_cpu_init(thr_id, throughput);
 
 		quark_skein512_cpu_init(thr_id, throughput);
-		x13_hamsi512_cpu_init(thr_id, throughput);
 
 		cuda_check_cpu_init(thr_id, throughput);
 
@@ -119,7 +115,6 @@ int scanhash_bastion(int thr_id, struct work *work, uint32_t max_nonce, unsigned
 
 		// hamsi or luffa
 		branchNonces = bastion_filter2(thr_id, throughput, d_hash[thr_id], d_hash_br1[thr_id], d_hash_br2[thr_id]);
-		x13_hamsi512_cpu_hash_64(thr_id, branchNonces, pdata[19], NULL, d_hash_br1[thr_id], order++);
 		x11_luffa512_cpu_hash_64(thr_id, throughput-branchNonces, pdata[19], NULL, d_hash_br2[thr_id], order++);
 		bastion_merge2(thr_id, throughput, d_hash[thr_id], d_hash_br1[thr_id], d_hash_br2[thr_id]);
 		TRACE("perm4  :");
