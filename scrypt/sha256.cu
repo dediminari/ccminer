@@ -352,52 +352,6 @@ __device__ void cuda_PBKDF2_SHA256_80_128(const uint32_t *tstate,
 	mycpy32_swab32(output+24, ostate2);    // TODO: coalescing would be desired
 }
 
-__global__ void cuda_pre_sha256(uint32_t g_inp[32], uint32_t g_tstate_ext[8], uint32_t g_ostate_ext[8], uint32_t nonce)
-{
-	nonce        +=       (blockIdx.x * blockDim.x) + threadIdx.x;
-	g_inp        += 32 * ((blockIdx.x * blockDim.x) + threadIdx.x);
-	g_tstate_ext +=  8 * ((blockIdx.x * blockDim.x) + threadIdx.x);
-	g_ostate_ext +=  8 * ((blockIdx.x * blockDim.x) + threadIdx.x);
-
-	uint32_t tstate[8], ostate[8];
-	mycpy32(tstate, midstate);
-
-	cuda_HMAC_SHA256_80_init(tstate, ostate, nonce);
-
-	mycpy32(g_tstate_ext, tstate);            // TODO: coalescing would be desired
-	mycpy32(g_ostate_ext, ostate);            // TODO: coalescing would be desired
-
-	cuda_PBKDF2_SHA256_80_128(tstate, ostate, g_inp, nonce);
-}
-
-__global__ void cuda_post_sha256(uint32_t g_output[8], uint32_t g_tstate_ext[8], uint32_t g_ostate_ext[8], uint32_t g_salt_ext[32])
-{
-	g_output     +=  8 * ((blockIdx.x * blockDim.x) + threadIdx.x);
-	g_tstate_ext +=  8 * ((blockIdx.x * blockDim.x) + threadIdx.x);
-	g_ostate_ext +=  8 * ((blockIdx.x * blockDim.x) + threadIdx.x);
-	g_salt_ext   += 32 * ((blockIdx.x * blockDim.x) + threadIdx.x);
-
-	uint32_t tstate[16];
-	mycpy32(tstate, g_tstate_ext);            // TODO: coalescing would be desired
-
-	uint32_t halfsalt[16];
-	mycpy64_swab32(halfsalt, g_salt_ext);     // TODO: coalescing would be desired
-	cuda_sha256_transform(tstate, halfsalt);
-	mycpy64_swab32(halfsalt, g_salt_ext+16);  // TODO: coalescing would be desired
-	cuda_sha256_transform(tstate, halfsalt);
-	cuda_sha256_transform(tstate, finalblk);
-
-	uint32_t buf[16];
-	mycpy32(buf, tstate);
-	mycpy32(buf + 8, outerpad);
-
-	uint32_t ostate[16];
-	mycpy32(ostate, g_ostate_ext);
-
-	cuda_sha256_transform(ostate, buf);
-	mycpy32_swab32(g_output, ostate);        // TODO: coalescing would be desired
-}
-
 //
 // callable host code to initialize constants and to call kernels
 //
@@ -418,20 +372,4 @@ void prepare_sha256(int thr_id, uint32_t host_pdata[20], uint32_t host_midstate[
 	}
 	checkCudaErrors(cudaMemcpyToSymbol(pdata, host_pdata, 20*sizeof(uint32_t), 0, cudaMemcpyHostToDevice));
 	checkCudaErrors(cudaMemcpyToSymbol(midstate, host_midstate, 8*sizeof(uint32_t), 0, cudaMemcpyHostToDevice));
-}
-
-void pre_sha256(int thr_id, int stream, uint32_t nonce, int throughput)
-{
-	dim3 block(128);
-	dim3 grid((throughput+127)/128);
-
-	cuda_pre_sha256<<<grid, block, 0, context_streams[stream][thr_id]>>>(context_idata[stream][thr_id], context_tstate[stream][thr_id], context_ostate[stream][thr_id], nonce);
-}
-
-void post_sha256(int thr_id, int stream, int throughput)
-{
-	dim3 block(128);
-	dim3 grid((throughput+127)/128);
-
-	cuda_post_sha256<<<grid, block, 0, context_streams[stream][thr_id]>>>(context_hash[stream][thr_id], context_tstate[stream][thr_id], context_ostate[stream][thr_id], context_odata[stream][thr_id]);
 }
