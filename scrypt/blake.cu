@@ -423,25 +423,6 @@ bool default_prepare_blake256(int thr_id, const uint32_t host_pdata[20], const u
 	return context_good[0][thr_id] && context_good[1][thr_id];
 }
 
-void default_do_blake256(dim3 grid, dim3 threads, int thr_id, int stream, uint32_t *hash, uint32_t nonce, int throughput, bool do_d2h)
-{
-	checkCudaErrors(cudaMemsetAsync(context_good[stream][thr_id], 0xff, 9 * sizeof(uint32_t), context_streams[stream][thr_id]));
-
-	cuda_blake256_hash<<<grid, threads, 0, context_streams[stream][thr_id]>>>((uint64_t*)context_hash[stream][thr_id], nonce, context_good[stream][thr_id], do_d2h);
-
-	// copy hashes from device memory to host (ALL hashes, lots of data...)
-	if (do_d2h && hash != NULL) {
-		size_t mem_size = throughput * sizeof(uint32_t) * 8;
-		checkCudaErrors(cudaMemcpyAsync(hash, context_hash[stream][thr_id], mem_size,
-						cudaMemcpyDeviceToHost, context_streams[stream][thr_id]));
-	}
-	else if (hash != NULL) {
-		// asynchronous copy of winning nonce (just 4 bytes...)
-		checkCudaErrors(cudaMemcpyAsync(hash, context_good[stream][thr_id]+8, sizeof(uint32_t),
-						cudaMemcpyDeviceToHost, context_streams[stream][thr_id]));
-	}
-}
-
 void default_free_blake256(int thr_id)
 {
 	if (init[thr_id]) {
