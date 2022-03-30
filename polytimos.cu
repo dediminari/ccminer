@@ -75,20 +75,3 @@ extern "C" void polytimos_hash(void *output, const void *input)
 static bool init[MAX_GPUS] = { 0 };
 static bool use_compat_kernels[MAX_GPUS] = { 0 };
 
-// cleanup
-extern "C" void free_polytimos(int thr_id)
-{
-	if (!init[thr_id])
-		return;
-
-	cudaThreadSynchronize();
-
-	cudaFree(d_hash[thr_id]);
-	x13_fugue512_cpu_free(thr_id);
-	cudaFree(d_resNonce[thr_id]);
-
-	CUDA_LOG_ERROR();
-
-	cudaDeviceSynchronize();
-	init[thr_id] = false;
-}
