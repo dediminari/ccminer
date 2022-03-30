@@ -2918,9 +2918,6 @@ static void *miner_thread(void *userdata)
 		case ALGO_LYRA2v2:
 			rc = scanhash_lyra2v2(thr_id, &work, max_nonce, &hashes_done);
 			break;
-		case ALGO_LYRA2Z:
-			rc = scanhash_lyra2Z(thr_id, &work, max_nonce, &hashes_done);
-			break;
 		case ALGO_NEOSCRYPT:
 			rc = scanhash_neoscrypt(thr_id, &work, max_nonce, &hashes_done);
 			break;
@@ -2998,15 +2995,6 @@ static void *miner_thread(void *userdata)
 			break;
 		case ALGO_X11:
 			rc = scanhash_x11(thr_id, &work, max_nonce, &hashes_done);
-			break;
-		case ALGO_X13:
-			rc = scanhash_x13(thr_id, &work, max_nonce, &hashes_done);
-			break;
-		case ALGO_X14:
-			rc = scanhash_x14(thr_id, &work, max_nonce, &hashes_done);
-			break;
-		case ALGO_X15:
-			rc = scanhash_x15(thr_id, &work, max_nonce, &hashes_done);
 			break;
 		case ALGO_X16R:
 			rc = scanhash_x16r(thr_id, &work, max_nonce, &hashes_done);
